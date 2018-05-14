@@ -45,7 +45,7 @@ func main() {
 			content = content + fmt.Sprintf("#%s:\t%s\n", group.Name, group.Topic.Value)
 		}
 		params := slack.FileUploadParameters{
-			Channels: []string{"DAB7SHYDD"},
+			Channels: []string{"CAPV96FJS"},
 			Title:    "slackの使い方",
 			Content:  content,
 		}
