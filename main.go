@@ -1,21 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/nlopes/slack"
-)
-
-type UPLOAD_FILE struct {
-	ID string `json:"id"`
-}
-
-const (
-	JSONFileName = "data.json"
 )
 
 func init() {
@@ -27,21 +17,25 @@ func init() {
 
 func main() {
 	api := slack.New(os.Getenv("TOKEN"))
-	found, _ := exists(JSONFileName)
-	if found {
-		bytes, err := ioutil.ReadFile(JSONFileName)
-		if err != nil {
-			panic(err)
+
+	// Delete previous　snippet
+	{
+		params := slack.GetFilesParameters{
+			Types: "snippets",
 		}
-		var uf UPLOAD_FILE
-		err = json.Unmarshal(bytes, &uf)
-		if err != nil {
-			panic(err)
+		files, _, _ := api.GetFiles(params)
+		for _, file := range files {
+			if file.Title == "slackの使い方" {
+				err := api.DeleteFile(file.ID)
+				if err != nil {
+					panic(err)
+				}
+			}
 		}
-		err = api.DeleteFile(uf.ID)
-		if err != nil {
-			panic(err)
-		}
+	}
+
+	// Send a snippet with DM to a newly joined team
+	{
 		groups, err := api.GetChannels(false)
 		if err != nil {
 			panic(err)
@@ -51,33 +45,15 @@ func main() {
 			content = content + fmt.Sprintf("#%s:\t%s\n", group.Name, group.Topic.Value)
 		}
 		params := slack.FileUploadParameters{
-			Channels: []string{""},
+			Channels: []string{"DAB7SHYDD"},
 			Title:    "slackの使い方",
 			Content:  content,
 		}
-		file, err := api.UploadFile(params)
+		_, err = api.UploadFile(params)
 		if err != nil {
 			panic(err)
 		}
-		var uploadFile UPLOAD_FILE
-		uploadFile.ID = file.ID
-		d, err := json.Marshal(uploadFile)
-		if err != nil {
-			panic(err)
-		}
-		ioutil.WriteFile(JSONFileName, d, os.ModePerm)
 	}
-}
-
-func exists(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true, nil
-	}
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-	return true, err
 }
 
 func StartSlackRTM(api *slack.Client) {
