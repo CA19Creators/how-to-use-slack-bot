@@ -1,3 +1,3 @@
-# 初見さん
+# how-to-use-slack-bot
 
-Slack incoming messenger.
+新しくチームに入った人向けにSlackの使い方を教えるbot

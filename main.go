@@ -4,8 +4,16 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/nlopes/slack"
 )
+
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		panic(err)
+	}
+}
 
 func main() {
 	api := slack.New(os.Getenv("TOKEN"))
