@@ -1,2 +1,3 @@
-# incoming-messenger
+# 初見さん
+
 Slack incoming messenger.
